@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: student_registration
+    description: "Student registration information"
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          name: "Expected number of rows to be equal to bronze table"
+          compare_model: source('UNI_BRONZE', 'student_registration')
+    columns:
+
+      - name: id_course
+        description: "Identification code of the course"
+        tests:
+          - not_null
+          - relationships:
+              name: "Foreign key to courses, id_course"
+              to: ref('courses')
+              field: id_course
+
+      - name: id_student
+        description: "Identification code of the student"
+        tests:
+          - not_null
+          - relationships:
+              name: "Foreign key to student_info, id_student"
+              to: ref('student_info')
+              field: id_student
+
+      - name: date_registration
+        description: "Days from the start of the course until the student registered (usually negative)"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "date_registration expected to be a number"
+              column_type: number
+      
+      - name: date_unregistration
+        description: "Days from the start of the course until the student unregistered"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "date_unregistration expected to be a number"
+              column_type: number

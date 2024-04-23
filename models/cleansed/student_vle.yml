@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: student_vle
+    description: "Student's interactions with the course content (VLE)"
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          name: "Expected number of rows to be equal to bronze table"
+          compare_model: source('UNI_BRONZE', 'student_vle')
+    columns:
+
+      - name: id_course
+        description: "Identification code of the course"
+        tests:
+          - not_null
+          - relationships:
+              name: "Foreign key to courses, id_course"
+              to: ref('courses')
+              field: id_course
+
+      - name: id_student
+        description: "Identification code of the student"
+        tests:
+          - not_null
+          - relationships:
+              name: "Foreign key to student_info, id_student"
+              to: ref('student_info')
+              field: id_student
+      
+      - name: id_site
+        description: "Identification code of the site"
+        tests:
+          - not_null
+          - relationships:
+              name: "Foreign key to vle, id_site"
+              to: ref('vle')
+              field: id_site
+      
+      - name: date
+        description: "Days from the start of the course until the interaction with the resource"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "date expected to be a number"
+              column_type: number
+
+      - name: sum_click
+        description: "Number of clicks on the resource that day"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "sum_click expected to be a number"
+              column_type: number

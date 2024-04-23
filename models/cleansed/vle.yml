@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: vle
+    description: "Course content (VLE)"
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          name: "Expected number of rows to be equal to bronze table"
+          compare_model: source('UNI_BRONZE', 'vle')
+    columns:
+
+      - name: id_course
+        description: "Identification code of the course"
+        tests:
+          - not_null
+          - relationships:
+              name: "Foreign key to courses, id_course"
+              to: ref('courses')
+              field: id_course
+      
+      - name: id_site
+        description: "Identification code of the site"
+        tests:
+          - not_null
+      
+      - name: activity_type
+        description: "Type of activity/content"
+        tests:
+          - not_null
+      
+      - name: week_from
+        description: "When it is planned to start using the content"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "week_from expected to be a number"
+              column_type: number
+
+      - name: week_to
+        description: "When it is planned to finish using the content"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "week_to expected to be a number"
+              column_type: number

@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: assessments
+    description: "Assessments and its related information"
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          name: "Expected number of rows to be equal to bronze table"
+          compare_model: source('UNI_BRONZE', 'assessments')
+    columns:
+
+      - name: id_course
+        description: "Identification code of the course, to which the assessment belongs"
+        tests:
+          - not_null
+          - relationships:
+              name: "Foreign key to courses, id_course"
+              to: ref('courses')
+              field: id_course
+
+      - name: id_assessment
+        description: "Assessment ID"
+        tests:
+          - not_null
+
+      - name: assessment_type
+        description: "3 types: (TMA[Tutor Marked Assessment], CMA[Computer Marked Assessment], Exam[Final Exam])"
+        tests:
+          - not_null
+          - accepted_values:
+              name: "Assessment type expected to be TMA, CMA or Exam"
+              values: ["TMA", "CMA", "Exam"]
+
+      - name: date
+        description: "Information about the final submission date of the assessment calculated as the number of days since the start of the course"
+        tests:
+          - dbt_utils.accepted_range:
+              name: "Positive number of days since the start of the course"
+              min_value: 0
+              inclusive: false
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "date expected to be a number"
+              column_type: number
+
+      - name: weight
+        description: "Weight of the assessment"
+        tests:
+          - not_null

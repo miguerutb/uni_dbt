@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: student_assessment
+    description: "Result of students' assessments"
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          name: "Expected number of rows to be equal to bronze table"
+          compare_model: source('UNI_BRONZE', 'student_assessment')
+    columns:
+
+      - name: id_assessment
+        description: "The identification code of the assessment"
+        tests:
+         - not_null
+
+      - name: id_student
+        description: "The identification code of the student"
+        tests:
+         - not_null
+
+      - name: date_submitted
+        description: "The date of student submission, as the number of days since the start of the module presentation"
+        tests:
+         - not_null
+         - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "date_submitted expected to be a number"
+              column_type: number
+
+      - name: is_banked
+        description: "Whether the assessment result has been transferred from a previous presentation or not"
+        tests:
+         - not_null
+         - dbt_expectations.expect_column_values_to_be_of_type:
+            name: "is_banked column expected to be boolean"
+            column_type: boolean
+
+      - name: score
+        description: "The score of the student on the assessment"
+        tests:
+         - dbt_utils.accepted_range:
+            name: "Score expected to be between 0 and 100"
+            min_value: 0
+            max_value: 100

@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: UNI_BRONZE
+    database: UNI
+    schema: BRONZE
+    tables:
+      - name: courses
+        identifier: COURSES
+      - name: student_info
+        identifier: STUDENT_INFO
+      - name: assessments
+        identifier: ASSESSMENTS
+      - name: vle
+        identifier: VLE
+      - name: student_registration
+        identifier: STUDENT_REGISTRATION
+      - name: student_assessment
+        identifier: STUDENT_ASSESSMENT
+      - name: student_vle
+        identifier: STUDENT_VLE

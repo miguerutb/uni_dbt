@@ -1,0 +1,94 @@
+version: 2
+
+models:
+  - name: student_info
+    description: "Demographic information about students"
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          name: "Expected number of rows to be equal to bronze table"
+          compare_model: source('UNI_BRONZE', 'student_info')
+    columns:
+
+      - name: id_course
+        description: "Identification code of the course"
+        tests:
+          - not_null
+          - relationships:
+              name: "Foreign key to courses, id_course"
+              to: ref('courses')
+              field: id_course
+
+      - name: id_student
+        description: "Identification code of the student"
+        tests:
+          - not_null
+
+      - name: gender
+        description: "Gender of the student"
+        tests:
+          - not_null
+          - accepted_values:
+              name: "Gender expected to be M or F"
+              values: ["M", "F"]
+      
+      - name: region
+        description: "Region of the student"
+        tests:
+          - not_null
+      
+      - name: highest_education
+        description: "Highest education level of the student as a numeric value(0: No formal education; 1: Lower Than A Level; 2: A Level or Equivalent; 3: HE Qualification; 4: Post Graduate Qualification)"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              name: "Highest education level expected to be between 0 and 15"
+              min_value: 0
+              max_value: 4
+      
+      - name: imd
+        description: "Index of Multiple Deprivation (90-100% as 9, and so on)"
+        tests:
+          - dbt_utils.accepted_range:
+              name: "Index of Multiple Deprivation expected to be between 0 and 9"
+              min_value: 0
+              max_value: 9
+      
+      - name: age
+        description: "Age of the student"
+        tests:
+          - not_null
+          - accepted_values:
+              name: "Age expected to be one of three possible values SENIOR(+55), ADULT(35-55) or YOUNG(-35)"
+              values: ['SENIOR', 'ADULT', 'YOUNG']
+      
+      - name: num_of_prev_attempts
+        description: "Number of previous attempts of the student"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "num_of_prev_attempts expected to be a number"
+              column_type: number
+      
+      - name: studied_credits
+        description: "Number of credits the student has studied"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "studed_credits expected to be a number"
+              column_type: number
+      
+      - name: disability
+        description: "Whether the student has a disability"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "disability expected to be a number"
+              column_type: boolean
+
+      - name: final_result
+        description: "Final result of the student"
+        tests:
+          - not_null
+          - accepted_values:
+              name: "Final result expected to be one of four possible values Pass, Withdrawn, Fail or Distinction"
+              values: ["Pass", "Withdrawn", "Fail", "Distinction"]

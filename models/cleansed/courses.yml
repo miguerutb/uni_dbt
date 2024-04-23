@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: courses
+    description: "Courses and its related information"
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          name: "Expected number of rows to be equal to bronze table"
+          compare_model: source('UNI_BRONZE', 'courses')
+    columns:
+
+      - name: id_course
+        description: "Identification code of the course"
+        tests:
+          - not_null
+          - unique
+      
+      - name: year
+        description: "Course year"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "year expected to be a number"
+              column_type: number
+      
+      - name: month
+        description: "Starting month of the course"
+        tests:
+          - not_null
+          - accepted_values:
+              name: "Course month expected to be FEBRUARY or OCTOBER"
+              values: ["FEBRUARY", "OCTOBER"]
+      
+      - name: days
+        description: "Lenght of the course in days"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              name: "days expected to be a number"
+              column_type: number
